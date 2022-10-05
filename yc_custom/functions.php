@@ -1,9 +1,22 @@
 <?php
 
-define('YC_VER', '1.3.4');
+define('YC_VER', '1.3.8');
 
 
 
+
+//修改只搜尋產品
+add_filter('pre_get_posts','yf_search_filter_pages');
+function yf_search_filter_pages($query) {
+    // Frontend search only
+    if ( ! is_admin() && $query->is_search() ) {
+        $query->set('post_type', 'product');
+        $query->set( 'wc_query', 'product_query' );
+    }
+    return $query;
+}
+
+//修改密碼強度
 add_filter( 'woocommerce_min_password_strength', 'wpglorify_woocommerce_password_filter', 300 );
 function wpglorify_woocommerce_password_filter() {
 return 0; } //2 represent medium strength password
