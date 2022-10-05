@@ -37,7 +37,15 @@ $user_member_lv_title = (empty($user_member_lv)) ? '非一般會員' : (get_the_
 $user_member_lv_content = (wpautop(get_the_content(null, false, $user_member_lv))) ?: '';
 
 $yf_reward_point = (get_user_meta($user_id, '_gamipress_yf_reward_points', true)) ?: '0';
-$period = date("Y/m/d", strtotime("-1 year")) . ' ~ ' . date("Y/m/d");
+
+
+//判斷 一年前的時間與用戶註冊時間，如果用戶註冊不到一年就用顧客註冊時間
+$register_time = $user->user_registered;
+$period_start = (strtotime($register_time) > strtotime("-1 year"))?strtotime($register_time):strtotime("-1 year");
+$period_start_text = (strtotime($register_time) > strtotime("-1 year"))?'(註冊)':'';
+$period = date("Y/m/d", $period_start) . $period_start_text . ' ~ ' . date("Y/m/d") . '(今天)';
+
+
 $period_sales = do_shortcode('[get_dates_sales StartDay="' . date("Y/m/d", strtotime("-1 year")) . '" EndDay="' . date("Y/m/d") . '"]');
 $orderdata_last_year = get_orderdata_lastyear_by_user($user_id);
 
@@ -125,7 +133,7 @@ echo '</pre>'; */
                     <td><?= get_woocommerce_currency_symbol() . ' ' . $orderdata_last_year['total'] ?><br>下一等級為 [<?= $next_rank_title ?>] ，還差 <?= get_woocommerce_currency_symbol() . ' ' . $difference_to_next_rank ?> 元即可升級</td>
                 </tr>
                 <tr>
-                    <th>計算區間：</th>
+                    <th>消費金額的計算區間：</th>
                     <td><?= $period; ?></td>
                 </tr>
                 <tr>
