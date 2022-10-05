@@ -65,7 +65,7 @@ defined('ABSPATH') || exit;
                 </div>
 
                 <div class="w-100 mt-2">
-                    <a class="mx-1" href="#" target="_blank"><img src="<?php echo IMG_URL; ?>/line_icon.png" alt=""></a>
+                    <a class="mx-1" href="https://lin.ee/xkIpEdc" target="_blank"><img src="<?php echo IMG_URL; ?>/line_icon.png" alt=""></a>
                     <a class="mx-1" href="https://www.instagram.com/flower1031shop/" target="_blank"><img src="<?php echo IMG_URL; ?>/ig_icon.png" alt=""></a>
                     <a class="mx-1" href="https://www.facebook.com/flower1031shop" target="_blank"><img src="<?php echo IMG_URL; ?>/fb_icon.png" alt=""></a>
 

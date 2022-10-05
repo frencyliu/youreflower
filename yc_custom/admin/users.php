@@ -129,6 +129,7 @@ function yf_custom_users_column($output, $column_name, $user_id)
 add_action('show_user_profile', 'yf_add_field', 100);
 add_action('edit_user_profile', 'yf_add_field', 100);
 add_action('edit_user_profile_update', 'yf_add_field_update', 100);
+add_action('personal_options_update', 'yf_add_field_update', 100);
 
 function yf_add_field($user_obj)
 {
