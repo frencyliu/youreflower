@@ -73,6 +73,14 @@ function yc_get_product_id_img()
     return $arr;
 }
 
+function cleanSpecialChar($string) {
+    $string = preg_replace('/[^A-Za-z0-9\-]/', ' ', $string);
+    $string = preg_replace('/-+/',' ',$string);
+    $string =  preg_replace('/\s+/', ' ', $string);
+    return $string;
+ }
+
+
 
 
 include_once('woocommerce/index.php');
