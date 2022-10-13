@@ -104,6 +104,9 @@
           speed: 1000,
           simulateTouch: false,
           effect: 'fade',
+          autoplay: {
+            delay: 3000,
+          },
 
           //pagination
           pagination: {
@@ -161,7 +164,7 @@
 
     // apps
     Apps: function () {
-      
+
       // lavalamp
       $('.lavalamp').lavalamp({
         setOnClick: true,
@@ -176,7 +179,7 @@
       $(document).ready(function() {
         $('body').find('select').each(function() {
           var dropdownParent = $(this).parent();
-          
+
           $(this).select2({
             minimumResultsForSearch: -1,
             dropdownParent: dropdownParent
@@ -223,7 +226,7 @@
 
       // skrollr
       skrollr.init({
-          forceHeight: false,        
+          forceHeight: false,
           mobileCheck: function() {
               //hack - forces mobile version to be off
               return false;

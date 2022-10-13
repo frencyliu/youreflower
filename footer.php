@@ -79,7 +79,7 @@ defined('ABSPATH') || exit;
 
 
 <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/vendor.min.js"></script>
-<script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/app.js"></script>
+<script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/app.js?v=1.2"></script>
 
 
 <style>
