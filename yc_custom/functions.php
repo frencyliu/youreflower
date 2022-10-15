@@ -1,6 +1,6 @@
 <?php
 
-define('YC_VER', '1.3.8');
+define('YC_VER', '1.4.0');
 
 
 
