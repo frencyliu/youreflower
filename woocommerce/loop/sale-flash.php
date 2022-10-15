@@ -22,7 +22,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $post, $product;
 
 ?>
-<?php if ( $product->is_on_sale() ) : ?>
+<?php
+
+if(!$product->is_in_stock()): ?>
+
+<div class="w-100 h-100 position-absolute top-0 start-0 text-white d-flex justify-content-center align-items-center h1" style="background-color:rgba(0,0,0,0.5)">售完</div>
+
+	<?php
+
+
+elseif ( $product->is_on_sale() ) : ?>
 
 	<?php echo apply_filters( 'woocommerce_sale_flash', '<span class="onsale">' . esc_html__( 'Sale!', 'woocommerce' ) . '</span>', $post, $product ); ?>
 

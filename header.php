@@ -86,6 +86,21 @@ for ($i = 1; $i < 4; $i++) {
 
                     <div class="collapse navbar-collapse order-4 order-lg-2" id="navbarMenu">
                         <ul class="navbar-nav mr-auto">
+                        <li class="nav-item dropdown dropdown-sm dropdown-hover d-lg-none">
+                                <a class="nav-link" target="_blank" href="https://www.instagram.com/youreflower1031shop/">
+                                    instagram
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown dropdown-sm dropdown-hover d-lg-none">
+                                <a class="nav-link" target="_blank" href="https://www.facebook.com/flower1031shop">
+                                    facebook
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown dropdown-sm dropdown-hover d-lg-none">
+                                <a class="nav-link" target="_blank" href="https://line.me/R/ti/p/@562usbkn">
+                                    Line專人服務
+                                </a>
+                            </li>
                             <li class="nav-item dropdown dropdown-sm dropdown-hover">
                                 <a class="nav-link" href="<?php echo site_url('brand-story'); ?>">
                                     品牌故事
