@@ -96,7 +96,7 @@ $args = array(
         <div class="row gutter-1">
             <!-- sidebar -->
             <aside class="col-lg-3 sidebar">
-                <div class="widget d-none d-lg-block">
+                <div class="widget">
                     <span class="widget-title">產品分類</span>
                     <ul id="page-nav" class="nav flex-column nav-accordion">
 

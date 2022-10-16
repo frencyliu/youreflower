@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Post rendering content according to caller of get_template_part
  *
@@ -6,45 +7,26 @@
  */
 
 // Exit if accessed directly.
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 ?>
 
-<article <?php post_class(); ?> id="post-<?php the_ID(); ?>">
+<article <?php post_class('col-6 col-md-4 mb-2 '); ?> id="post-<?php the_ID(); ?>">
 
-	<header class="entry-header">
 
-		<?php
-		the_title(
-			sprintf( '<h2 class="entry-title"><a href="%s" rel="bookmark">', esc_url( get_permalink() ) ),
-			'</a></h2>'
-		);
-		?>
+    <div class="card card-product">
+        <figure class="card-image">
+            <a title="<?= get_the_title(); ?>" href="<?= get_the_permalink(); ?>">
+                <?php echo get_the_post_thumbnail($post->ID, 'large'); ?>
+            </a>
+        </figure>
+        <div class="card-footer">
+            <a title="<?= get_the_title(); ?>" href="<?= get_the_permalink(); ?>">
+                <h2 class="card-title"><?= get_the_title(); ?></h2>
+            </a>
+            <!-- <span class="brand">Armani</span> -->
 
-		<?php if ( 'post' === get_post_type() ) : ?>
-
-			<div class="entry-meta">
-				<?php understrap_posted_on(); ?>
-			</div><!-- .entry-meta -->
-
-		<?php endif; ?>
-
-	</header><!-- .entry-header -->
-
-	<?php echo get_the_post_thumbnail( $post->ID, 'large' ); ?>
-
-	<div class="entry-content">
-
-		<?php
-		the_excerpt();
-		understrap_link_pages();
-		?>
-
-	</div><!-- .entry-content -->
-
-	<footer class="entry-footer">
-
-		<?php understrap_entry_footer(); ?>
-
-	</footer><!-- .entry-footer -->
+            <span><?php echo date('Y/m/d', get_post_time('U')); ?></span>
+        </div>
+    </div>
 
 </article><!-- #post-## -->

@@ -19,6 +19,15 @@ function yf_amp(){
             '',
             200
         );
+        add_submenu_page(
+            'users.php',
+            __('購物金LOG', 'YC_TECH'),
+            __('購物金LOG', 'YC_TECH'),
+            'edit_users',
+            'admin.php?page=gamipress_logs',
+            '',
+            200
+        );
         remove_submenu_page( 'users.php', 'profile.php' );
     }
 

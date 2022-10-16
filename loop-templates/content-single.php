@@ -7,9 +7,12 @@
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
+$word_count = mb_strlen(strip_tags(get_the_content()));
+$mins_to_read = ceil($word_count / 250);
+
 ?>
 
-<article <?php post_class(); ?> id="post-<?php the_ID(); ?>">
+<article <?php post_class('mt-5'); ?> id="post-<?php the_ID(); ?>">
 
 	<header class="entry-header">
 
@@ -17,15 +20,15 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="entry-meta">
 
-			<?php understrap_posted_on(); ?>
+        <p class="mt-4r mb-1r h6"><?php echo date('Y/m/d', get_post_time('U')); ?> ‧ <?php echo $mins_to_read; ?> min read</p>
 
 		</div><!-- .entry-meta -->
 
 	</header><!-- .entry-header -->
 
-	<?php echo get_the_post_thumbnail( $post->ID, 'large' ); ?>
+    <hr/>
 
-	<div class="entry-content">
+	<div class="entry-content mt-5">
 
 		<?php
 		the_content();

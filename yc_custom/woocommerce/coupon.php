@@ -187,9 +187,9 @@ function point_reduct_with_coupon($order_id){
 
 
 
-add_action( 'woocommerce_payment_complete', 'point_reduct_with_coupon' );
+//add_action( 'woocommerce_payment_complete', 'point_reduct_with_coupon' );
 // add_action( 'woocommerce_order_status_completed', 'point_reduct_with_coupon' );
-// add_action( 'woocommerce_order_status_processing', 'point_reduct_with_coupon' );
+add_action( 'woocommerce_order_status_processing', 'point_reduct_with_coupon' );
 // add_action( 'woocommerce_order_status_on-hold', 'point_reduct_with_coupon' );
 
 /**

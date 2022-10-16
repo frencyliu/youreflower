@@ -33,7 +33,7 @@ get_header();
 
           <!-- sidebar -->
           <aside class="col-lg-3 sidebar">
-            <div class="widget d-none d-lg-block">
+            <div class="widget">
               <span class="widget-title">Women</span>
               <ul id="page-nav" class="nav flex-column nav-accordion">
                 <li class="nav-item"><a class="nav-link" href="#!">Coats & Jackets</a></li>

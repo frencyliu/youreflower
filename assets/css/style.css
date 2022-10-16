@@ -18514,3 +18514,26 @@ min-width: 12rem;
 font-weight: 700;
 color: red;
 }
+
+
+
+#right-sidebar h2{
+    font-size: 1rem;
+}
+
+.sidebar .cat-item::marker{
+display: none !important;
+content: '';
+opacity: 0;
+}
+.sidebar .cat-item{
+    margin-top: 0.625rem;
+}
+.sidebar .cat-item a{
+color: #777777;
+}
+
+.sidebar .cat-item a:hover,
+.sidebar .cat-item a:active{
+    color: #000;
+    }
