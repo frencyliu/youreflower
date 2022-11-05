@@ -21,8 +21,10 @@ function yf_coupon_available()
   $user_birthday = get_user_meta($user_id, 'birthday', true);
   $user_points = gamipress_get_user_points($user_id, 'yf_reward');
   $user_points_img = '<img width="21" height="21" src="' . get_the_post_thumbnail_url(701) . '" />';
-  $coupons = yf_get_coupons(); //取得需要購物金的優惠券
-  $origin_coupons = yf_get_origin_coupons(); //取得一般的優惠券
+  $code_coupons = yf_get_coupons('code'); //取得輸入代碼的優惠券
+  $normal_coupons = yf_get_coupons('normal'); //取得網站一般優惠
+  $coupons = yf_get_coupons('required_reward'); //取得需要購物金的優惠券
+
 
 
 
@@ -39,6 +41,24 @@ function yf_coupon_available()
       display: none !important;
     }
   </style>
+<?php if (!empty($normal_coupons)) : ?>
+    <h2 class="">消費滿額折扣</h2>
+    <div class="list-group mb-2" style="border-radius: 5px;">
+      <?php foreach ($normal_coupons as $coupon) :
+        $data = coupons_available($coupon);
+        //    echo '<pre>';
+        //    var_dump($data);
+        //    echo '</pre>';
+
+      ?>
+        <label class="list-group-item list-group-item-action <?= $data['disabled_bg'] ?>">
+          <input data-type="normal_coupon" id="coupon-<?= $coupon->ID; ?>" name="yf_normal_coupon" class="form-check-input me-1 normal_coupon" type="radio" value="<?= $coupon->post_title; ?>" <?= $data['disabled'] ?>>
+          <?= $coupon->post_title . $coupon->post_excerpt . $data['reason']; ?>
+        </label>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+
   <?php if (!empty($coupons)) : ?>
     <h2 class="">使用購物金</h2>
     <div class="list-group mb-2" style="border-radius: 5px;">
@@ -50,7 +70,7 @@ function yf_coupon_available()
 
       ?>
         <label class="list-group-item list-group-item-action <?= $data['disabled_bg'] ?>">
-          <input id="coupon-<?= $coupon->ID; ?>" name="yf_coupon" class="form-check-input me-1" type="radio" value="<?= $coupon->post_title; ?>" <?= $data['disabled'] ?>>
+          <input data-type="required_reward_coupon" id="coupon-<?= $coupon->ID; ?>" name="yf_coupon" class="form-check-input me-1 required_reward_coupon" type="radio" value="<?= $coupon->post_title; ?>" <?= $data['disabled'] ?>>
           <?= $coupon->post_title . $coupon->post_excerpt . $data['reason']; ?>
         </label>
       <?php endforeach; ?>
@@ -59,7 +79,7 @@ function yf_coupon_available()
 <?php
 }
 
-function yf_get_coupons()
+function yf_get_coupons($type)
 {
 
   $coupon_posts_without_minimum_amount = get_posts(array(
@@ -73,8 +93,8 @@ function yf_get_coupons()
         'compare' => 'NOT EXISTS',
       ),
       'reuqire_yf_reward_clause' => array(
-        'key' => 'reuqire_yf_reward',
-        'value' => '1'
+        'key' => 'coupon_type',
+        'value' => $type,
       ),
     ),
   ));
@@ -93,13 +113,15 @@ function yf_get_coupons()
         'compare' => 'EXISTS',
       ),
       'reuqire_yf_reward_clause' => array(
-        'key' => 'reuqire_yf_reward',
-        'value' => '1'
+        'key' => 'coupon_type',
+        'value' => $type,
       ),
     ),
   ));
 
   $coupon_posts = array_merge($coupon_posts_without_minimum_amount, $coupon_posts_with_minimum_amount);
+
+  if($type !== 'required_reward')  return $coupon_posts;
 
   $user_id = get_current_user_id();
   $user_birthday = get_user_meta($user_id, 'birthday', true);
@@ -137,67 +159,6 @@ function yf_get_coupons()
 
   return $coupon_posts; // always use return in a shortcode
 }
-
-function yf_get_origin_coupons()
-{
-  $origin_coupon_posts_without_minimum_amount_1 = get_posts(array(
-    'posts_per_page'   => -1,
-    'post_type'        => 'shop_coupon',
-    'post_status'      => 'publish',
-    'meta_query' => array(
-      'relation' => 'AND',
-      'reuqire_yf_reward_exist_clause' => array(
-        'key' => 'reuqire_yf_reward',
-        'compare' => 'NOT EXISTS',
-      ),
-      'reuqire_yf_reward_clause' => array(
-        'key' => 'minimum_amount',
-        'compare' => 'NOT EXISTS',
-      ),
-    ),
-  ));
-
-  $origin_coupon_posts_without_minimum_amount_2 = get_posts(array(
-    'posts_per_page'   => -1,
-    'post_type'        => 'shop_coupon',
-    'post_status'      => 'publish',
-    'meta_query' => array(
-      'relation' => 'AND',
-      'reuqire_yf_reward_exist_clause' => array(
-        'key' => 'reuqire_yf_reward',
-        'value' => '0',
-      ),
-      'reuqire_yf_reward_clause' => array(
-        'key' => 'minimum_amount',
-        'compare' => 'NOT EXISTS',
-      ),
-    ),
-  ));
-
-  $origin_coupon_posts_with_minimum_amount = get_posts(array(
-    'posts_per_page'   => -1,
-    'meta_key' => 'minimum_amount',
-    'orderby' => 'meta_value_num',
-    'order'            => 'ASC',
-    'post_type'        => 'shop_coupon',
-    'post_status'      => 'publish',
-    'meta_query' => array(
-      'relation' => 'OR',
-      'reuqire_yf_reward_exist_clause' => array(
-        'key' => 'reuqire_yf_reward',
-        'compare' => 'NOT EXISTS',
-      ),
-      'reuqire_yf_reward_clause' => array(
-        'key' => 'reuqire_yf_reward',
-        'value' => '0'
-      ),
-    ),
-  ));
-  $coupon_posts = array_merge($origin_coupon_posts_without_minimum_amount_1, $origin_coupon_posts_without_minimum_amount_2,  $origin_coupon_posts_with_minimum_amount);
-  return $coupon_posts;
-}
-
-
 
 
 function coupons_available($coupon)
@@ -304,3 +265,31 @@ function point_restore_with_coupon($order_id)
 
 add_action('woocommerce_order_status_cancelled', 'point_restore_with_coupon');
 // add_action( 'woocommerce_order_status_pending', 'point_restore_with_coupon' );
+
+
+add_filter( 'rwmb_meta_boxes', 'handle_coupon_mb' );
+
+function handle_coupon_mb( $meta_boxes ) {
+    $prefix = '';
+
+    $meta_boxes[] = [
+        'title'      => __( '折價券類型', 'youreflower' ),
+        'id'         => 'reuqire_yf_reward',
+        'post_types' => ['shop_coupon'],
+        'fields'     => [
+            [
+                'id'      => $prefix . 'coupon_type',
+                'type'    => 'radio',
+                'options' => [
+                    'code'            => __( '輸入優惠碼才有優惠', 'youreflower' ),
+                    'normal'          => __( '全站優惠', 'youreflower' ),
+                    'required_reward' => __( '需要有購物金', 'youreflower' ),
+                ],
+                'std'     => 'code',
+                'inline'  => false,
+            ],
+        ],
+    ];
+
+    return $meta_boxes;
+}
