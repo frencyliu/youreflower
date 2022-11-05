@@ -107,6 +107,11 @@ for ($i = 1; $i < 4; $i++) {
                                 </a>
                             </li>
                             <li class="nav-item dropdown dropdown-sm dropdown-hover">
+                                <a class="nav-link" href="<?php echo site_url('newsf'); ?>">
+                                    最新消息
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown dropdown-sm dropdown-hover">
                                 <a class="nav-link" href="<?= get_term_link('fiwi', 'product_cat') ?>">
                                     FIWI天然植萃系列
                                 </a>

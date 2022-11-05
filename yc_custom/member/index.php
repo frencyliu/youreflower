@@ -127,7 +127,7 @@ function yf_clear_monthly()
         // Award the points to the user
         gamipress_deduct_points_to_user($user_id, $points, $points_type, $args);
         // Store this award to prevent award it again
-        update_user_meta($user_id, 'yf_user_last_reward_monthly_on', date('Y-m-d H:i:s', strtotime('+8 hours')));
+        update_user_meta($user_id, 'yf_user_last_reward_monthly_on', '');
         //發信通知
         //yf_send_mail_with_template('birthday');
 
