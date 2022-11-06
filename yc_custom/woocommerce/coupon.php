@@ -4,36 +4,22 @@
  * 秀出可以使用的折扣
  */
 
- add_action( 'wp_enqueue_scripts', 'handle_coupon' );
+add_action('wp_enqueue_scripts', 'handle_coupon_enqueue');
 
- function handle_coupon(){
-      if ( is_checkout() ) {
-          wp_enqueue_script( 'handle-coupon', get_stylesheet_directory_uri() . '/assets/js/handle-coupon.js', array( 'wc-checkout' ), YC_VER, true );
-      }
- }
+function handle_coupon_enqueue()
+{
+  if (is_checkout()) {
+    wp_enqueue_script('handle-coupon', get_stylesheet_directory_uri() . '/assets/js/handle-coupon.js', array('wc-checkout'), YC_VER, true);
+  }
+}
 
 add_action('woocommerce_before_checkout_form', 'yf_coupon_available', 300);
 
 function yf_coupon_available()
 {
-  if (!is_user_logged_in()) return;
-  $user_id = get_current_user_id();
-  $user_birthday = get_user_meta($user_id, 'birthday', true);
-  $user_points = gamipress_get_user_points($user_id, 'yf_reward');
-  $user_points_img = '<img width="21" height="21" src="' . get_the_post_thumbnail_url(701) . '" />';
-  $code_coupons = yf_get_coupons('code'); //取得輸入代碼的優惠券
+
   $normal_coupons = yf_get_coupons('normal'); //取得網站一般優惠
   $coupons = yf_get_coupons('required_reward'); //取得需要購物金的優惠券
-
-
-
-
-
-
-  $cart_total = (int) WC()->cart->subtotal;
-  // echo '<pre>';
-  // var_dump($coupons);
-  // echo '</pre>';
 
 ?>
   <style>
@@ -41,14 +27,19 @@ function yf_coupon_available()
       display: none !important;
     }
   </style>
-<?php if (!empty($normal_coupons)) : ?>
+  <?php if (!empty($normal_coupons)) :
+
+    $normal_coupons = handle_coupons($normal_coupons);
+    // echo '<pre>';
+    //        var_dump($coupons);
+    //        echo '</pre>';
+
+  ?>
     <h2 class="">消費滿額折扣</h2>
     <div class="list-group mb-2" style="border-radius: 5px;">
       <?php foreach ($normal_coupons as $coupon) :
-        $data = coupons_available($coupon);
-        //    echo '<pre>';
-        //    var_dump($data);
-        //    echo '</pre>';
+        $data = coupons_available_normal($coupon);
+
 
       ?>
         <label class="list-group-item list-group-item-action <?= $data['disabled_bg'] ?>">
@@ -59,7 +50,9 @@ function yf_coupon_available()
     </div>
   <?php endif; ?>
 
-  <?php if (!empty($coupons)) : ?>
+  <?php if (!empty($coupons)) :
+    //$coupons = handle_coupons($coupons);
+  ?>
     <h2 class="">使用購物金</h2>
     <div class="list-group mb-2" style="border-radius: 5px;">
       <?php foreach ($coupons as $coupon) :
@@ -102,7 +95,7 @@ function yf_get_coupons($type)
   $coupon_posts_with_minimum_amount = get_posts(array(
     'posts_per_page'   => -1,
     'meta_key' => 'minimum_amount',
-    'orderby' => 'meta_value_num',
+    'orderby' => ['meta_value_num','ID'],
     'order'            => 'ASC',
     'post_type'        => 'shop_coupon',
     'post_status'      => 'publish',
@@ -121,7 +114,8 @@ function yf_get_coupons($type)
 
   $coupon_posts = array_merge($coupon_posts_without_minimum_amount, $coupon_posts_with_minimum_amount);
 
-  if($type !== 'required_reward')  return $coupon_posts;
+  if ($type !== 'required_reward')  return $coupon_posts;
+  if (!is_user_logged_in()) return;
 
   $user_id = get_current_user_id();
   $user_birthday = get_user_meta($user_id, 'birthday', true);
@@ -129,8 +123,13 @@ function yf_get_coupons($type)
   $user_member_lv_title = get_the_title($user_member_lv_id);
   $birthday_coupon_name = $user_member_lv_title . '當月生日禮金';
 
-
-
+  foreach ($coupon_posts as $key => $coupon_post) {
+    //var_dump((strpos($coupon_post->post_title, $user_member_lv_title) !== false));
+    if ((strpos($coupon_post->post_title, $user_member_lv_title) === false) && (strpos($coupon_post->post_title, '全會員') === false)) {
+      // 優惠券不包含用戶等級就取消
+      unset($coupon_posts[$key]);
+    }
+  }
 
   if (date('m', strtotime($user_birthday)) != date('m')) {
     foreach ($coupon_posts as $key => $coupon_post) {
@@ -160,6 +159,13 @@ function yf_get_coupons($type)
   return $coupon_posts; // always use return in a shortcode
 }
 
+function get_coupon_type($coupon)
+{
+  $coupon_id          = $coupon->get_id();
+  $coupon_type = get_post_meta($coupon_id, 'coupon_type', true);
+  return $coupon_type;
+}
+
 
 function coupons_available($coupon)
 {
@@ -174,9 +180,34 @@ function coupons_available($coupon)
     $data['is_available'] = false;
     $data['reason'] = "，<span class='text-danger'>您的購物金不足(目前${user_points})，無法使用折扣</span>";
     $data['disabled'] = "disabled";
-    $data['disabled_bg'] = "bg-light cursor-not-allowed d-none";
+    $data['disabled_bg'] = "bg-light cursor-not-allowed";
     return $data;
   } elseif ($cart_total < $minimum_amount) {
+
+    $d = $minimum_amount - $cart_total;
+    $shop_url = site_url('shop');
+    $data['is_available'] = false;
+    $data['reason'] = "，<span class='text-danger'>還差 ${d} 元</span>，<a href='${shop_url}'>再去多買幾件 》</a>";
+    $data['disabled'] = "disabled";
+    $data['disabled_bg'] = "bg-light cursor-not-allowed";
+    return $data;
+  } else {
+    $data['is_available'] = true;
+    $data['reason'] = "";
+    $data['disabled'] = "";
+    $data['disabled_bg'] = "";
+    return $data;
+  }
+}
+
+function coupons_available_normal($coupon)
+{
+  $cart_total = (int) WC()->cart->subtotal;
+  $coupon_amount = (int) get_post_meta($coupon->ID, 'coupon_amount', true);
+  $minimum_amount = (int) get_post_meta($coupon->ID, 'minimum_amount', true);
+
+  $data = [];
+  if ($cart_total < $minimum_amount) {
 
     $d = $minimum_amount - $cart_total;
     $shop_url = site_url('shop');
@@ -208,22 +239,22 @@ function point_reduct_with_coupon($order_id)
   $coupon_amount = 0;
   foreach ($coupon_codes as $key => $coupon_code) {
     $the_coupon = new WC_Coupon($coupon_code);
-    $coupon_amount += $the_coupon->get_amount();
+    $coupon_amount = $the_coupon->get_amount();
+    $type = get_coupon_type($the_coupon);
+    if ($type == 'required_reward' && $coupon_amount > 0) {
+
+      $user_id = $order->get_customer_id();
+      $user = get_user_by('id', $user_id);
+      $user_member_lv_id = yf_get_user_member_lv_id($user_id);
+      $user_member_lv_title = get_the_title($user_member_lv_id);
+      $points_type = 'yf_reward';
+
+      $args = array(
+        'reason' => "使用購物金 NT$ $coupon_amount - $user->display_name ($user_member_lv_title)",
+      );
+      gamipress_deduct_points_to_user($user_id, $coupon_amount, $points_type, $args);
+    }
   }
-
-  if ($coupon_amount === 0) return;
-
-
-  $user_id = $order->get_customer_id();
-  $user = get_user_by('id', $user_id);
-  $user_member_lv_id = yf_get_user_member_lv_id($user_id);
-  $user_member_lv_title = get_the_title($user_member_lv_id);
-  $points_type = 'yf_reward';
-
-  $args = array(
-    'reason' => "使用購物金 NT$ $coupon_amount - $user->display_name ($user_member_lv_title)",
-  );
-  gamipress_deduct_points_to_user($user_id, $coupon_amount, $points_type, $args);
 }
 
 
@@ -244,21 +275,23 @@ function point_restore_with_coupon($order_id)
   $coupon_amount = 0;
   foreach ($coupon_codes as $key => $coupon_code) {
     $the_coupon = new WC_Coupon($coupon_code);
-    $coupon_amount += $the_coupon->get_amount();
+    $coupon_amount = $the_coupon->get_amount();
+
+    $type = get_coupon_type($the_coupon);
+    if ($type == 'required_reward' && $coupon_amount > 0) {
+
+      $user_id = $order->get_customer_id();
+      $user = get_user_by('id', $user_id);
+      $user_member_lv_id = yf_get_user_member_lv_id($user_id);
+      $user_member_lv_title = get_the_title($user_member_lv_id);
+      $points_type = 'yf_reward';
+
+      $args = array(
+        'reason' => "訂單取消，購物金退回 NT$ $coupon_amount - $user->display_name ($user_member_lv_title)",
+      );
+      gamipress_award_points_to_user($user_id, $coupon_amount, $points_type, $args);
+    }
   }
-
-  if ($coupon_amount === 0) return;
-
-  $user_id = $order->get_customer_id();
-  $user = get_user_by('id', $user_id);
-  $user_member_lv_id = yf_get_user_member_lv_id($user_id);
-  $user_member_lv_title = get_the_title($user_member_lv_id);
-  $points_type = 'yf_reward';
-
-  $args = array(
-    'reason' => "訂單取消，購物金退回 NT$ $coupon_amount - $user->display_name ($user_member_lv_title)",
-  );
-  gamipress_award_points_to_user($user_id, $coupon_amount, $points_type, $args);
 }
 
 
@@ -267,29 +300,62 @@ add_action('woocommerce_order_status_cancelled', 'point_restore_with_coupon');
 // add_action( 'woocommerce_order_status_pending', 'point_restore_with_coupon' );
 
 
-add_filter( 'rwmb_meta_boxes', 'handle_coupon_mb' );
+add_filter('rwmb_meta_boxes', 'handle_coupon_mb');
 
-function handle_coupon_mb( $meta_boxes ) {
-    $prefix = '';
+function handle_coupon_mb($meta_boxes)
+{
+  $prefix = '';
 
-    $meta_boxes[] = [
-        'title'      => __( '折價券類型', 'youreflower' ),
-        'id'         => 'reuqire_yf_reward',
-        'post_types' => ['shop_coupon'],
-        'fields'     => [
-            [
-                'id'      => $prefix . 'coupon_type',
-                'type'    => 'radio',
-                'options' => [
-                    'code'            => __( '輸入優惠碼才有優惠', 'youreflower' ),
-                    'normal'          => __( '全站優惠', 'youreflower' ),
-                    'required_reward' => __( '需要有購物金', 'youreflower' ),
-                ],
-                'std'     => 'code',
-                'inline'  => false,
-            ],
+  $meta_boxes[] = [
+    'title'      => __('折價券類型', 'youreflower'),
+    'id'         => 'reuqire_yf_reward',
+    'post_types' => ['shop_coupon'],
+    'fields'     => [
+      [
+        'id'      => $prefix . 'coupon_type',
+        'type'    => 'radio',
+        'options' => [
+          'code'            => __('輸入優惠碼才有優惠', 'youreflower'),
+          'normal'          => __('全站優惠', 'youreflower'),
+          'required_reward' => __('需要有購物金', 'youreflower'),
         ],
-    ];
+        'std'     => 'code',
+        'inline'  => false,
+      ],
+    ],
+  ];
 
-    return $meta_boxes;
+  return $meta_boxes;
+}
+
+
+function handle_coupons($coupons)
+{
+  $cart_total = (int) WC()->cart->subtotal;
+
+  foreach ($coupons as $key => $coupon) {
+    $minimum_amount = (int) get_post_meta($coupon->ID, 'minimum_amount', true);
+    $minimum_amount = !empty($minimum_amount) ? $minimum_amount : 0;
+    if ($cart_total - $minimum_amount >= 0) {
+      $meet[$coupon->ID] = abs($cart_total - $minimum_amount);
+    } else {
+      $not_meet[$coupon->ID] = abs($cart_total - $minimum_amount);
+    }
+  }
+  $meet = !empty($meet) ? $meet : [];
+  $not_meet = !empty($not_meet) ? $not_meet : [];
+  asort($meet); //form small to big
+  asort($not_meet); // from small to big
+
+  $biggest_coupon = array_slice($meet, 0, 1, true);
+  $keys = array_keys($biggest_coupon + $not_meet);
+  foreach ($coupons as $key => $coupon) {
+    if (!in_array($coupon->ID, $keys)) {
+      unset($coupons[$key]);
+    }
+  }
+
+  return $coupons;
+  //$coupon_amount = (int) get_post_meta($coupon->ID, 'coupon_amount', true);
+
 }

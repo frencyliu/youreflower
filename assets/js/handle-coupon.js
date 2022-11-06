@@ -1,34 +1,29 @@
 (function ($) {
-  $(document.body).on('updated_checkout', function() {
-    $('.woocommerce-remove-coupon').on('click', function(){
-
-      const coupon = $(this).data('coupon');
-      $('input[value="' + coupon + '"]').prop('checked', false);
+  $(document.body).on("updated_checkout", function () {
+    $(".woocommerce-remove-coupon").on("click", function () {
+      const coupon = $(this).data("coupon");
+      $('input[value="' + coupon + '"]').prop("checked", false);
       //console.log('coupon', coupon);
-    })
+    });
   });
   $(document).ready(function () {
     let old_coupon = {
-      required_reward_coupon: '',
-      normal_coupon: ''
+      required_reward_coupon: "",
+      normal_coupon: "",
     };
-    $('.woocommerce-remove-coupon').each(function () {
-      $('input[value="' + $(this).data('coupon') + '"]').prop('checked', true);
-      const type = $('input[value="' + $(this).data('coupon') + '"]').data('type');
-      old_coupon[type] = $(this).data('coupon');
-    })
+    $(".woocommerce-remove-coupon").each(function () {
+      $('input[value="' + $(this).data("coupon") + '"]').prop("checked", true);
+      const type = $('input[value="' + $(this).data("coupon") + '"]').data("type");
+      old_coupon[type] = $(this).data("coupon");
+    });
     //console.log('old_coupon', old_coupon);
 
     $(".required_reward_coupon, .normal_coupon").on("change", function () {
-      //console.log("origin", old_coupon[$(this).data('type')]);
-      //console.log("change to", $(this).val());
-      yf_handle_coupon(old_coupon[$(this).data('type')], $(this).val());
-      old_coupon[$(this).data('type')] = $(this).val();
+      console.log("origin", old_coupon[$(this).data("type")]);
+      console.log("change to", $(this).val());
+      yf_handle_coupon(old_coupon[$(this).data("type")], $(this).val());
+      old_coupon[$(this).data("type")] = $(this).val();
     });
-
-
-
-
 
     function yf_apply_coupon(newCoupon) {
       const newData = {
@@ -58,9 +53,9 @@
     }
 
     function yf_handle_coupon(oldCoupon, newCoupon) {
-      if (oldCoupon === ""){
-        yf_apply_coupon(newCoupon)
-      }else{
+      if (oldCoupon === "") {
+        yf_apply_coupon(newCoupon);
+      } else {
         const oldData = {
           security: wc_checkout_params.remove_coupon_nonce,
           coupon: oldCoupon,
@@ -83,8 +78,9 @@
 
               // Remove coupon code from coupon field
               $("form.checkout_coupon").find('input[name="coupon_code"]').val("");
-
-              yf_apply_coupon(newCoupon);
+              setTimeout(() => {
+                yf_apply_coupon(newCoupon);
+              }, 500);
             }
           },
           error: function (jqXHR) {
@@ -96,7 +92,6 @@
           dataType: "html",
         });
       }
-
     }
   });
 })(jQuery);
