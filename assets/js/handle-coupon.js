@@ -5,6 +5,10 @@
       $('input[value="' + coupon + '"]').prop("checked", false);
       //console.log('coupon', coupon);
     });
+
+    // 綠界加字
+    const text = '<br><span style="color:red;">⚠ 請務必選擇取貨門市<span>';
+    $('label[for^="shipping_method_0_wooecpay"]').after(text);
   });
   $(document).ready(function () {
     let old_coupon = {

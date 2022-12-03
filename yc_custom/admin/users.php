@@ -464,6 +464,8 @@ foreach ($member_lvs as $member_lv) {
 
   $countUser[$member_lv->ID] = count($users);
 }
+
+
 define('CountUser', $countUser);
 
 add_action('manage_users_extra_tablenav', 'render_custom_filter_options');

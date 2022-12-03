@@ -17852,7 +17852,12 @@ div.code-toolbar > .toolbar a:hover {
     width: 64px;
 }
 .navbar-light .navbar-nav .nav-link {
+    padding: 0rem 1rem;
+}
+@media (min-width: 1600px) {
+  .navbar-light .navbar-nav .nav-link {
     padding: 0rem 2rem;
+}
 }
 .header-p {
     padding: 0rem 8.5rem;
@@ -18536,4 +18541,26 @@ color: #777777;
 .sidebar .cat-item a:hover,
 .sidebar .cat-item a:active{
     color: #000;
+    }
+
+    .woocommerce-error a.button.wc-forward{
+      display: none !important;
+    }
+
+    .woofc-area.woofc-style-01 .woofc-area-bot .woofc-coupon .woofc-coupon-added{
+      color:#444;
+    }
+
+    .woofc-area.woofc-style-01 .woofc-area-bot .woofc-link span,
+    .woofc-area.woofc-style-01 .woofc-area-bot .woofc-continue span,
+    .woofc-area.woofc-style-01 .woofc-area-bot .woofc-coupon .woofc-coupon-input .woofc-coupon-code,
+    .woofc-area.woofc-style-01 .woofc-area-bot .woofc-coupon .woofc-coupon-input .woofc-coupon-check{
+      border-bottom: 1px solid #444;
+    }
+    .woofc-area.woofc-style-01 .woofc-area-bot .woofc-coupon .woofc-coupon-input .woofc-coupon-code{
+      color:#000;
+    }
+
+    .woofc-area.woofc-style-01 .woofc-area-bot .woofc-coupon .woofc-coupon-input .woofc-coupon-code::placeholder{
+      color:#999;
     }

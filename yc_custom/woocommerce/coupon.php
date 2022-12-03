@@ -30,9 +30,6 @@ function yf_coupon_available()
   <?php if (!empty($normal_coupons)) :
 
     $normal_coupons = handle_coupons($normal_coupons);
-    // echo '<pre>';
-    //        var_dump($coupons);
-    //        echo '</pre>';
 
   ?>
     <h2 class="">消費滿額折扣</h2>
@@ -57,10 +54,6 @@ function yf_coupon_available()
     <div class="list-group mb-2" style="border-radius: 5px;">
       <?php foreach ($coupons as $coupon) :
         $data = coupons_available($coupon);
-        //    echo '<pre>';
-        //    var_dump($data);
-        //    echo '</pre>';
-
       ?>
         <label class="list-group-item list-group-item-action <?= $data['disabled_bg'] ?>">
           <input data-type="required_reward_coupon" id="coupon-<?= $coupon->ID; ?>" name="yf_coupon" class="form-check-input me-1 required_reward_coupon" type="radio" value="<?= $coupon->post_title; ?>" <?= $data['disabled'] ?>>
@@ -95,7 +88,7 @@ function yf_get_coupons($type)
   $coupon_posts_with_minimum_amount = get_posts(array(
     'posts_per_page'   => -1,
     'meta_key' => 'minimum_amount',
-    'orderby' => ['meta_value_num','ID'],
+    'orderby' => ($type === 'required_reward')?['meta_value_num', 'ID']:'meta_value_num',
     'order'            => 'ASC',
     'post_type'        => 'shop_coupon',
     'post_status'      => 'publish',
@@ -111,6 +104,8 @@ function yf_get_coupons($type)
       ),
     ),
   ));
+
+
 
   $coupon_posts = array_merge($coupon_posts_without_minimum_amount, $coupon_posts_with_minimum_amount);
 
@@ -155,6 +150,8 @@ function yf_get_coupons($type)
     }
   }
 
+  $coupon_posts = get_available_coupons($coupon_posts);
+
 
   return $coupon_posts; // always use return in a shortcode
 }
@@ -166,6 +163,20 @@ function get_coupon_type($coupon)
   return $coupon_type;
 }
 
+function get_available_coupons($coupons)
+{
+  //如果用戶購物金不足，就移除coupon
+  foreach ($coupons as $key => $coupon) {
+    $user_id = get_current_user_id();
+    $user_points = (int) gamipress_get_user_points($user_id, 'yf_reward');
+    $coupon_amount = (int) get_post_meta($coupon->ID, 'coupon_amount', true);
+    if ($user_points < $coupon_amount) {
+      //購物金不足
+      unset($coupons[$key]);
+    }
+  }
+  return $coupons;
+}
 
 function coupons_available($coupon)
 {
@@ -328,7 +339,10 @@ function handle_coupon_mb($meta_boxes)
   return $meta_boxes;
 }
 
-
+/**
+ * 隱藏小的coupon
+ * 只出現大的coupon
+ */
 function handle_coupons($coupons)
 {
   $cart_total = (int) WC()->cart->subtotal;
@@ -356,6 +370,4 @@ function handle_coupons($coupons)
   }
 
   return $coupons;
-  //$coupon_amount = (int) get_post_meta($coupon->ID, 'coupon_amount', true);
-
 }

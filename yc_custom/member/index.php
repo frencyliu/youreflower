@@ -102,14 +102,18 @@ function yc_wp_cron_init()
         wp_schedule_event(time(), 'daily', 'yf_daily_check');
         //update_option('test_scheduled', 'scheduled' . date('Y-m-d H:i:s'));
     }
+
     add_action('yf_daily_check', 'yf_clear_monthly', 10);
-    add_action('yf_daily_check', 'yf_member_upgrade', 20);
+    //add_action('yf_daily_check', 'yf_member_upgrade', 20);
     add_action('yf_daily_check', 'yf_birthday', 30);
+
+
     add_action('yf_daily_check', 'yf_reward_monthly', 40);
 }
 //add_action( 'admin_init', 'yf_birthday' );
 function yf_clear_monthly()
 {
+
 
     if (date('d') !== '01') return;
 
@@ -233,7 +237,7 @@ function yf_birthday_by_user_id($user_id, $points_type = 'yf_reward')
 
 
 
-    if ($allow_bday_reward) {
+    // if ($allow_bday_reward) {
         $args = array(
             'reason' => "生日禮金發放NT$ $points - $user->display_name ($user_member_lv_title)",
         );
@@ -246,7 +250,7 @@ function yf_birthday_by_user_id($user_id, $points_type = 'yf_reward')
         // $data['to'] = $user->user_email;
         // $data['subject'] = '生日快樂！您的生日禮金已經發放';
         // yf_send_mail_with_template('', $data);
-    }
+    // }
     //else 不發放生日禮金
 }
 
@@ -326,6 +330,7 @@ function yf_reward_monthly_by_user_id($user_id, $points_type = 'yf_reward')
     $user_member_lv_title = get_the_title($user_member_lv_id);
     $allow_monthly_reward = allow_monthly_reward($user_id);
 
+
     if ($allow_monthly_reward) {
         $args = array(
             'reason' => "每月購物金發放NT$ $points - $user->display_name ($user_member_lv_title)",
@@ -348,6 +353,9 @@ function get_monthly_reward_by_member_lv_id($user_member_lv_id)
     $points = get_post_meta($user_member_lv_id, 'yf_reward_point', true);
     return $points;
 }
+
+
+
 
 function allow_monthly_reward($user_id)
 {
